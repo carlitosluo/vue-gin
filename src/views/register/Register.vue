@@ -103,6 +103,27 @@ export default {
       //   this.showTelephoneValidate = true;
       //   return;
       // }
+      // 验证数据
+      this.$v.user.$touch();
+      if (this.$v.user.$anyError) {
+        return;
+      }
+      const api = 'http://localhost:8025/api/auth/register';
+      this.axios.post(api, { ...this.user }).then((res) => {
+        // 成功保存token
+        console.log(res.data);
+        localStorage.setItem('token', res.data.data.token);
+        // 跳转主页
+        this.$router.replace({ name: 'Home' });
+      }).catch((err) => {
+        // console.log('err:', err.response.data.msg);
+        this.$bvToast.toast(err.response.data.msg, {
+          title: '数据验证错误',
+          variant: 'danger',
+          solid: true,
+        });
+      });
+      // 请求aip
       console.log('register');
     },
   },
