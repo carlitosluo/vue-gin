@@ -65,6 +65,8 @@
 import { required, minLength } from 'vuelidate/lib/validators';
 
 import customValidator from '@/helper/validator';
+// import storageService from '@/service/storageService';
+import userService from '@/service/userService';
 
 export default {
   data() {
@@ -108,14 +110,28 @@ export default {
       if (this.$v.user.$anyError) {
         return;
       }
-      const api = 'http://localhost:8025/api/auth/register';
-      this.axios.post(api, { ...this.user }).then((res) => {
+      // const api = 'http://localhost:8025/api/auth/register';
+      userService.register(this.user).then((res) => {
         // 成功保存token
         console.log(res.data);
-        localStorage.setItem('token', res.data.data.token);
-        // 跳转主页
-        this.$router.replace({ name: 'Home' });
-      }).catch((err) => {
+        this.$store.commit('userModule/SET_TOKEN', res.data.data.token);
+        // storageService.set(storageService.USER_TOKEN, res.data.data.token);
+        userService.info();
+        // .then((response) => {
+        //   // 保存用户信息
+        //   // userService.set(storageService.USER_INFO, JSON.stringify(response.data.data.user));
+        //   this.$store.commit('userModule/SET_USERINFO', response.data.data.user);
+        //   // 跳转主页
+        //   this.$router.replace({ name: 'Home' });
+        // });
+        return userService.info();
+      }).then((response) => {
+          // 保存用户信息
+          // userService.set(storageService.USER_INFO, JSON.stringify(response.data.data.user));
+          this.$store.commit('userModule/SET_USERINFO', response.data.data.user);
+          // 跳转主页
+          this.$router.replace({ name: 'Home' });
+        }).catch((err) => {
         // console.log('err:', err.response.data.msg);
         this.$bvToast.toast(err.response.data.msg, {
           title: '数据验证错误',
