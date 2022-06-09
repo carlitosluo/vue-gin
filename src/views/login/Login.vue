@@ -59,6 +59,8 @@ import { required, minLength } from 'vuelidate/lib/validators';
 
 import customValidator from '@/helper/validator';
 
+import { mapActions } from 'vuex';
+
 export default {
   data() {
     return {
@@ -82,6 +84,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions('userModule', { userlogin: 'login' }),
     validateState(name) {
       // e6结构赋值
       const { $dirty, $error } = this.$v.user[name];
@@ -92,7 +95,22 @@ export default {
       //   this.showTelephoneValidate = true;
       //   return;
       // }
-      console.log('login');
+      // 验证数据
+      this.$v.user.$touch();
+      if (this.$v.user.$anyError) {
+        return;
+      }
+      // const api = 'http://localhost:8025/api/auth/register';
+      this.userlogin(this.user).then(() => {
+        this.$router.replace({ name: 'Home' });
+      }).catch((err) => {
+        // console.log('err:', err.response.data.msg);
+        this.$bvToast.toast(err.response.data.msg, {
+          title: '数据验证错误1',
+          variant: 'danger',
+          solid: true,
+        });
+      });
     },
   },
 };
